@@ -1,0 +1,27 @@
+{
+  "archive_name": "artex044-deployed.tar.gz",
+  "archive_bytes": 683326279,
+  "archive_sha256": "1c3cd021f84bfcde65be9a7a57494da0d342707637f771c457279237422ca4e6",
+  "review_method": "Existing archive inventory; selected one regular UTF-8 Markdown member after relative-path/link/16-KiB bound checks; extractfile only, no archive extraction or execution.",
+  "items": [
+    {
+      "member_path": "deploypkg/app/skills/chains-meta/SKILL.md",
+      "member_bytes": 2566,
+      "member_sha256": "2a810a0f0ae55b458d6b0bbc5385ae8e5ef95d75d12b49171e9b392ad461c739",
+      "license_status": "No explicit license in selected manifest, and no skill-local LICENSE/NOTICE/COPYING entry in archive inventory. Redistribution permission is not established; user access authorization is not third-party license proof.",
+      "status": "reviewed_not_imported",
+      "body_copied": false,
+      "runtime_enabled": false,
+      "reason": "Operational index and external-resource package not suitable for this bounded non-operational quality-skill slice; no redistribution license established. Linked reference content was not read."
+    }
+  ],
+  "other_skills": "Not reviewed or installed by this PR. Existing directory/frontmatter inventory does not establish content safety, licensing, or ARTEX runtime compatibility.",
+  "not_imported": [
+    "skill text",
+    "executables",
+    "configuration",
+    "secrets",
+    "databases",
+    "tool chains"
+  ]
+}

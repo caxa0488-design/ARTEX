@@ -7,8 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { api, http } from "@/lib/api";
-import { managedBindingPayload, managedVersionPayload, type SkillManagement } from "@/lib/phase2-management";
+import {
+  managedBindingPayload,
+  managedVersionPayload,
+  type SkillManagement,
+  type SkillRuntimeMetadata,
+  skillRuntimeEventMeaning,
+} from "@/lib/phase2-management";
 export default function SkillVersionsPage() {
+  const [runtimeTask, setRuntimeTask] = useState("");
+  const [runtimeView, setRuntimeView] = useState<SkillRuntimeMetadata | null>(null);
   const [names, setNames] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [view, setView] = useState<SkillManagement | null>(null);
@@ -65,10 +73,10 @@ export default function SkillVersionsPage() {
     <div className="space-y-5">
       <h1 className="font-semibold text-2xl">Skill Versions & Bindings</h1>
       <p className="rounded border p-3 text-sm">
-        Management-only version references, not runtime locking. Old visible/unversioned skills keep their behavior.
-        Recording does not install or enable anything; revocation does not stop an already-running task or disable a
-        legacy skill. No skill content is imported, shown, or executed. Safe digest registration currently requires a
-        Unix server.
+        Managed runtime pins support one SKILL.md (128 KiB), without resource files or MCPs. Unmanaged skills keep their
+        behavior. Registration never enables a skill. Managed assembly and Skill loads check content/binding/revocation;
+        task/chat pins persist fixed instruction bytes. Revocation cannot retract text already delivered to a model.
+        Safe capture requires Unix.
       </p>
       {error && (
         <p role="alert" className="text-destructive">
@@ -142,7 +150,7 @@ export default function SkillVersionsPage() {
                 <CardTitle>Version records</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Label htmlFor="revoke-reason">Revocation reason (management record only)</Label>
+                <Label htmlFor="revoke-reason">Revocation reason (blocks future managed assemblies/loads)</Label>
                 <Input id="revoke-reason" value={reason} maxLength={2000} onChange={(e) => setReason(e.target.value)} />
                 {view.versions.map((v) => (
                   <div key={v.id} className="space-y-1 rounded border p-3 text-sm">
@@ -179,8 +187,9 @@ export default function SkillVersionsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm">
-                  Binding requires existing skill visibility. Use the existing Agent visibility settings separately;
-                  this action never enables a skill.
+                  Binding requires existing visibility and a supported manifest. Use a new task after changing versions.
+                  Clearing the binding leaves visibility for new legacy runs, but existing pinned tasks stop rather than
+                  silently fall back. This action never enables a skill.
                 </p>
                 <NativeSelect aria-label="Agent key" value={agent} onChange={(e) => setAgent(e.target.value)}>
                   {view.agents.map((a) => (
@@ -222,7 +231,7 @@ export default function SkillVersionsPage() {
                       })
                     }
                   >
-                    Recheck hash and bind management version
+                    Verify and bind runtime version
                   </Button>
                   <Button
                     variant="outline"
@@ -253,6 +262,62 @@ export default function SkillVersionsPage() {
             </details>
           </>
         )}
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Actual task skill versions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm">
+              Read-only pins and separate assembled/loaded events. Loaded means instructions returned, not tests
+              executed. Bodies and credentials are never returned here.
+            </p>
+            <Input
+              aria-label="Runtime task ID"
+              value={runtimeTask}
+              onChange={(e) => {
+                setRuntimeTask(e.target.value);
+                setRuntimeView(null);
+              }}
+              placeholder="Task ID"
+            />
+            <Button
+              variant="outline"
+              disabled={!/^[1-9][0-9]*$/.test(runtimeTask)}
+              onClick={() =>
+                action(async () =>
+                  setRuntimeView(
+                    await http<SkillRuntimeMetadata>(
+                      `/operator/tasks/${encodeURIComponent(runtimeTask)}/skill-runtime`,
+                    ),
+                  ),
+                )
+              }
+            >
+              Load actual versions / events
+            </Button>
+            {runtimeView && (
+              <>
+                <p className="text-sm">
+                  {runtimeView.scope} · {runtimeView.limits}
+                </p>
+                <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-all text-xs">
+                  {JSON.stringify(
+                    {
+                      ...runtimeView,
+                      events: runtimeView.events.map((event) => ({
+                        ...event,
+                        meaning: skillRuntimeEventMeaning(event.stage),
+                      })),
+                    },
+                    null,
+                    2,
+                  )}
+                </pre>
+              </>
+            )}
+          </CardContent>
+        </Card>
       </fieldset>
     </div>
   );

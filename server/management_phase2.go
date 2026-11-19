@@ -18,6 +18,7 @@ func (s *Server) registerPhase2Routes(mux *http.ServeMux) {
 		"GET /api/operator/findings/{id}":                           s.operatorFinding,
 		"POST /api/operator/findings/{id}":                          s.operatorFinding,
 		"GET /api/operator/tasks/{id}":                              s.operatorTask,
+		"GET /api/operator/tasks/{id}/skill-runtime":                s.operatorSkillRuntime,
 		"GET /api/operator/tasks/{id}/report":                       s.operatorTask,
 		"GET /api/operator/tasks/{id}/coverage-key":                 s.operatorCoverage,
 		"POST /api/operator/tasks/{id}/coverage":                    s.operatorCoverage,
@@ -100,7 +101,7 @@ func (s *Server) viewManagedSkill(w http.ResponseWriter, r *http.Request) {
 	if digestErr != nil {
 		digestError = digestErr.Error()
 	}
-	writeJSON(w, 200, map[string]any{"versions": versions, "agents": bindings, "checks": checks, "current": digest, "current_error": digestError, "events": events, "runtime_locking": false, "limits": "Latest 100 versions/events. Management bindings do not enable, disable, or freeze runtime skills; verify changes explicitly."})
+	writeJSON(w, 200, map[string]any{"versions": versions, "agents": bindings, "checks": checks, "current": digest, "current_error": digestError, "events": events, "runtime_locking": true, "limits": "Latest 100 versions/events. Managed runtime pins only single-manifest skills (128 KiB); registration does not enable skills. Multi-file/MCP/resource packages fail explicitly. Existing pins cannot silently change versions."})
 }
 func (s *Server) recordManagedSkill(w http.ResponseWriter, r *http.Request) {
 	name, ok := managedName(w, r)
@@ -141,18 +142,18 @@ func (s *Server) bindManagedSkill(w http.ResponseWriter, r *http.Request) {
 	}
 	hash := ""
 	if in.VersionID > 0 {
-		digest, err := digestManagedSkill(r.Context(), s.skillDir, name)
+		_, digestHash, err := captureManagedManifest(r.Context(), s.skillDir, name)
 		if err != nil {
 			writeErr(w, 400, err.Error())
 			return
 		}
-		hash = digest.Hash
+		hash = digestHash
 	}
 	if err := s.m.pg.BindManagedSkill(r.Context(), name, r.PathValue("key"), in.VersionID, in.Revision, hash, s.approver(r)); err != nil {
 		knowledgeError(w, err)
 		return
 	}
-	writeJSON(w, 200, map[string]any{"ok": true, "runtime_locking": false})
+	writeJSON(w, 200, map[string]any{"ok": true, "runtime_locking": true})
 }
 func (s *Server) revokeManagedSkill(w http.ResponseWriter, r *http.Request) {
 	name, ok := managedName(w, r)
@@ -309,4 +310,26 @@ func (s *Server) operatorTask(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Disposition", `attachment; filename="task-`+strconv.FormatInt(id, 10)+`-operator-review.json"`)
 	}
 	writeJSON(w, 200, map[string]any{"task_id": id, "ledger": ledger, "coverage_reviews": history, "findings": findings, "finding_reviews": reviews, "run_scope": "task_history_not_run_verified", "limits": "Up to 100 findings, 100 finding reviews grouped by finding, and 100 coverage annotations; truncated histories are not complete. Operator annotations never set asset-tested flags or prove current-run execution. Existing ledger gaps remain authoritative."})
+}
+
+func (s *Server) operatorSkillRuntime(w http.ResponseWriter, r *http.Request) {
+	id, ok := knowledgeID(w, r)
+	if !ok {
+		return
+	}
+	task, err := s.m.pg.GetTask(id)
+	if err != nil {
+		knowledgeError(w, err)
+		return
+	}
+	if task == nil {
+		writeErr(w, 404, "task not found")
+		return
+	}
+	data, err := s.m.pg.RuntimeSkillMetadata(r.Context(), id)
+	if err != nil {
+		knowledgeError(w, err)
+		return
+	}
+	writeJSON(w, 200, data)
 }

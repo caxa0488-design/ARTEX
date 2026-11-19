@@ -490,6 +490,9 @@ func (p *Planner) Plan(ctx context.Context, taskID int64, as *db.AssetStore, ts 
 	ctx = WithRunInfo(ctx, RunInfo{TaskID: taskID, ExplorationID: explorationID(ts)})
 	tools, def, cleanup := AugmentTools(WithToolQuery(ctx, plannerToolQuery(goal, triggers)), "planner", base)
 	defer cleanup()
+	if def.AssemblyError != nil {
+		return false, "managed skill integrity check failed", def.AssemblyError
+	}
 	// The key situation (just-finished intents + the pre-fetched full graph) goes into
 	// [this round's user input] (see input below); the system prompt keeps only the
 	// static planning body. Moving it out keeps the system prompt stable across rounds,

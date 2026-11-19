@@ -117,6 +117,12 @@ func TestChatMentionPagination(t *testing.T) {
 }
 
 func TestChatMentionWorkerReceivesServerDetails(t *testing.T) {
+	// This fixture constructs bare agents, not a fully wired Server. Do not
+	// inherit another test's global hook referencing a closed Manager/DB.
+	oldAugment := agent.ToolAugment()
+	agent.SetToolAugment(nil)
+	t.Cleanup(func() { agent.SetToolAugment(oldAugment) })
+
 	m, err := NewManager(t.TempDir(), "")
 	if err != nil {
 		t.Skipf("postgres unavailable (%v) — skipping", err)
