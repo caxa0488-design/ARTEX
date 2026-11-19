@@ -119,11 +119,11 @@ func readApplied(t *testing.T, d *DB) []appliedMigration {
 	return out
 }
 
-// assertEmbeddedApplied checks that both LLM tables exist and that every
+// assertEmbeddedApplied checks that the migrated tables exist and that every
 // embedded migration is recorded with the SHA-256 of its file.
 func assertEmbeddedApplied(t *testing.T, d *DB) []appliedMigration {
 	t.Helper()
-	for _, table := range []string{"llm_records", "llm_usage"} {
+	for _, table := range []string{"llm_records", "llm_usage", "knowledge_catalog", "knowledge_catalog_history"} {
 		var exists bool
 		if err := d.QueryRow(`SELECT to_regclass($1) IS NOT NULL`, table).Scan(&exists); err != nil {
 			t.Fatal(err)
@@ -137,9 +137,9 @@ func assertEmbeddedApplied(t *testing.T, d *DB) []appliedMigration {
 		version int
 		name    string
 	}{{1, llmRecordsMigration}, {2, llmUsageMigration}, {3, "0003_task_scope_icp_index.sql"}, {4, "0004_llm_usage_ts_index.sql"},
-		{5, "0005_traffic_rewrite_rules.sql"}, {6, "0006_activity_outbox.sql"}, {7, "0007_finding_report_state.sql"}}
+		{5, "0005_traffic_rewrite_rules.sql"}, {6, "0006_activity_outbox.sql"}, {7, "0007_finding_report_state.sql"}, {8, "0008_knowledge_catalog.sql"}}
 	if len(applied) != len(want) {
-		t.Fatalf("schema_migrations = %+v, want versions 1 to 7", applied)
+		t.Fatalf("schema_migrations = %+v, want versions 1 to %d", applied, len(want))
 	}
 	for i, w := range want {
 		content, err := fs.ReadFile(migrationsFS(), w.name)

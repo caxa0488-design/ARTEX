@@ -149,6 +149,7 @@ jobs:
       - run: npm run test:polling
       - run: npm run test:replay
       - run: npm run test:upload
+      - run: npm run test:catalog
       - run: npm run build:static
 
   python:
