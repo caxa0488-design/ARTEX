@@ -17,7 +17,7 @@
     "test:replay": "node --test scripts/replay.test.mjs",
     "test:upload": "node --test scripts/upload.test.mjs",
     "test:catalog": "node --test scripts/knowledge-catalog.test.mjs",
-    "test:management": "node --test scripts/phase2-management.test.mjs"
+    "test:management": "node --test scripts/phase2-management.test.mjs scripts/skill-content.test.mjs"
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": ["biome check --write --no-errors-on-unmatched"]

@@ -1,0 +1,10 @@
+{
+  "name": "quality-task-handoff",
+  "implementation": "original_not_copied_or_translated_from_Drive",
+  "path": "skills/quality-task-handoff/SKILL.md",
+  "sha256": "10461818edefdd334e45c6c3439d449c9f60f45f64aee0ab4a6938bb1b515a69",
+  "license": "AGPL-3.0-only",
+  "default_enabled": false,
+  "default_agent_bindings": [],
+  "runtime_resources": []
+}
