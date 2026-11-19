@@ -28,5 +28,35 @@
     "default_enabled": false,
     "default_agent_bindings": [],
     "changes": "Translated, abridged and redesigned for existing authorized-lab evidence only; operational examples, commands, external submission and unsafe privacy exceptions excluded."
+  },
+  {
+    "name": "quality-scope-brief",
+    "source_repository": "https://github.com/elementalsouls/Claude-BugHunter",
+    "source_commit": "9bdb0a81658bc25f09c0b52d31fcde923d126e4f",
+    "source_path": "skills/recon-scope-triage/SKILL.md",
+    "source_sha256": "83bd4e07fb5797e60d309ed694e5a5aaf94052ff49261252b3f2aec952dbaa2e",
+    "adapted_path": "skills/quality-scope-brief/SKILL.md",
+    "adapted_sha256": "9ca383151c45a2c6754a1e01eb7687b08344dbfd960f894850559ca87eeac73e",
+    "author": "Sachin Sharma / Claude-BugHunter",
+    "content_license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "default_enabled": false,
+    "default_agent_bindings": [],
+    "changes": "Selected non-operational sections only; Chinese rewrite for supplied records, no network requests, executable examples, attack chains, automated verdicts or external submissions."
+  },
+  {
+    "name": "quality-independent-review",
+    "source_repository": "https://github.com/elementalsouls/Claude-BugHunter",
+    "source_commit": "9bdb0a81658bc25f09c0b52d31fcde923d126e4f",
+    "source_path": "skills/triage-validation/SKILL.md",
+    "source_sha256": "7dd455768e31aedefbce6d416952cb0fbb276a584889f21c8c8d0407e8745741",
+    "adapted_path": "skills/quality-independent-review/SKILL.md",
+    "adapted_sha256": "b54d2444ac10b824a999d9aa7e0905ede19b0b3f194e2f3a90eff8a5e3975ad1",
+    "author": "Sachin Sharma / Claude-BugHunter",
+    "content_license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "default_enabled": false,
+    "default_agent_bindings": [],
+    "changes": "Selected non-operational sections only; Chinese rewrite for supplied records, no network requests, executable examples, attack chains, automated verdicts or external submissions."
   }
 ]

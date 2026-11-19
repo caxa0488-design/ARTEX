@@ -79,7 +79,12 @@ test("bundled quality adaptations pin source and actual adapted bytes, with expl
   const entries = JSON.parse(
     readFileSync(new URL("../../third_party/bughunter/adaptations.json", import.meta.url), "utf8"),
   );
-  assert.deepEqual(entries.map((e) => e.name).sort(), ["quality-evidence-hygiene", "quality-evidence-report"]);
+  assert.deepEqual(entries.map((e) => e.name).sort(), [
+    "quality-evidence-hygiene",
+    "quality-evidence-report",
+    "quality-independent-review",
+    "quality-scope-brief",
+  ]);
   for (const entry of entries) {
     assert.equal(entry.source_commit, "9bdb0a81658bc25f09c0b52d31fcde923d126e4f");
     assert.match(entry.source_sha256, /^[0-9a-f]{64}$/);
