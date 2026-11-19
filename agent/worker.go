@@ -447,6 +447,9 @@ func (w *Worker) execute(ctx context.Context, name string, taskID int64, as *db.
 	ctx = WithRunInfo(ctx, RunInfo{TaskID: taskID, ExplorationID: explorationID(ts), IntentID: intent.ID})
 	tools, def, cleanup := AugmentTools(WithToolQuery(ctx, nodeSummary(intent)), "worker", base)
 	defer cleanup()
+	if def.AssemblyError != nil {
+		return "", WriteCounts{}, def.AssemblyError
+	}
 
 	// The intent is the worker's [sole duty, an invariant across the whole run] → it
 	// goes into the system prompt together with the launch instruction and the raw

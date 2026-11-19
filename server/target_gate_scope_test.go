@@ -150,6 +150,12 @@ type targetScopeFixture struct {
 }
 
 func newTargetScopeFixture(t *testing.T) *targetScopeFixture {
+	// This fixture constructs bare agents, not a fully wired Server. Do not
+	// inherit another test's global hook referencing a closed Manager/DB.
+	oldAugment := agent.ToolAugment()
+	agent.SetToolAugment(nil)
+	t.Cleanup(func() { agent.SetToolAugment(oldAugment) })
+
 	t.Helper()
 	skipWithoutDSN(t)
 	m, err := NewManager(t.TempDir(), "")

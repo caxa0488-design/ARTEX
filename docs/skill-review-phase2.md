@@ -1,3 +1,5 @@
+> Historical phase-2 contract. Runtime binding is now extended by `docs/skill-runtime-phase3.md`; see that document for the manifest-only pinning scope.
+
 # Phase 2: skill version references and operator review
 
 This PR stacks on the knowledge metadata catalog (PR 1). It adds two working

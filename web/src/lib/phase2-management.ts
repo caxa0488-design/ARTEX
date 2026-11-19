@@ -55,7 +55,7 @@ export interface SkillManagement {
   agents: ManagedBinding[];
   checks: Record<string, string>;
   current_error: string;
-  runtime_locking: false;
+  runtime_locking: boolean;
   events: unknown[];
   limits: string;
 }
@@ -108,4 +108,17 @@ export function managedVersionPayload(label: string, source: string, license: st
   if (!label.trim() || !source.trim() || !license.trim())
     throw new Error("Version label, provenance reference and license statement are required.");
   return { label: label.trim(), source_ref: source.trim(), license: license.trim() };
+}
+
+export interface SkillRuntimeMetadata {
+  pins: unknown[];
+  events: { stage?: unknown; [key: string]: unknown }[];
+  scope: string;
+  limits: string;
+}
+
+export function skillRuntimeEventMeaning(stage: unknown) {
+  if (stage === "assembled") return "Version validated and pinned; instructions not necessarily loaded.";
+  if (stage === "loaded") return "Instructions returned; no action, test result or coverage is implied.";
+  return "Unknown event; do not infer execution or verification.";
 }

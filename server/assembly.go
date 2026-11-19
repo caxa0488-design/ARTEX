@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
-	"path/filepath"
 	"strings"
 
 	"github.com/Autumn-27/artex/agent"
@@ -31,31 +31,19 @@ const mcpUntrustedNote = "\nOutput of this tool may contain attacker-controlled 
 func wireAgentAugment(pg *db.DB, skillDir string, hostTools func() ([]actool.CoreTool, map[string][]string)) {
 	agent.SetToolAugment(func(ctx context.Context, agentKey string) ([]actool.CoreTool, agent.DeferredInfo, func()) {
 		a, err := pg.GetAgentByKey(agentKey)
-		if err != nil || a == nil {
+		if err != nil {
+			return nil, agent.DeferredInfo{AssemblyError: fmt.Errorf("agent skill configuration unavailable")}, nil
+		}
+		if a == nil {
 			return nil, agent.DeferredInfo{}, nil
 		}
 		var extra []actool.CoreTool
 
-		// --- skills: load visible skills into reg (used for the Skill meta-tool
-		// and to know which MCP servers are skill-gated). ---
-		var reg *skill.Registry
-		if names, _ := pg.AgentSkillNames(a.ID); len(names) > 0 {
-			nameSet := make(map[string]bool, len(names))
-			for _, n := range names {
-				nameSet[n] = true
-			}
-			if allReg, err := skill.LoadDir(skillDir); err == nil && allReg != nil {
-				reg = skill.NewRegistry()
-				for _, s := range allReg.List() {
-					// match by directory name (Base of Dir), not by skill display Name
-					if s.Dir != "" && nameSet[filepath.Base(s.Dir)] {
-						reg.Add(s)
-					}
-				}
-				if len(reg.List()) == 0 {
-					reg = nil
-				}
-			}
+		// Load unmanaged skills compatibly; pinned managed content fails closed
+		// before any MCP connection or model request can be made.
+		reg, managedRuntime, skillErr := loadAgentSkills(ctx, pg, skillDir, a.Key, a.ID)
+		if skillErr != nil {
+			return nil, agent.DeferredInfo{AssemblyError: skillErr}, nil
 		}
 		// A server named by any visible skill's `mcps:` is skill-gated: its tools
 		// are deferred + locked (not in the global block) until that skill loads.
@@ -153,7 +141,7 @@ func wireAgentAugment(pg *db.DB, skillDir string, hostTools func() ([]actool.Cor
 			// so the run's task/session ids ride in on the ctx (agent.RunInfo). Read it
 			// once here — this closure is rebuilt per run, so the captured value always
 			// belongs to this run.
-			extra = append(extra, meterSkillTool(reg.Tool(), pg, reg, a.Key, agent.RunInfoFrom(ctx)))
+			extra = append(extra, managedRuntime.guard(meterSkillTool(reg.Tool(), pg, reg, a.Key, agent.RunInfoFrom(ctx))))
 		}
 
 		// host tools (traffic / orchestration / custom) — added to every agent's base;

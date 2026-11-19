@@ -16,7 +16,7 @@ import (
 
 func TestPhase2RoutesRequireAuthentication(t *testing.T) {
 	h := (&Server{}).Handler()
-	for _, route := range []struct{ method, path string }{{"GET", "/api/managed-skills"}, {"GET", "/api/managed-skills/sample"}, {"POST", "/api/managed-skills/sample"}, {"PUT", "/api/managed-skills/sample/bindings/planner"}, {"POST", "/api/managed-skills/sample/versions/1/revoke"}, {"GET", "/api/operator/findings/1"}, {"POST", "/api/operator/findings/1"}, {"GET", "/api/operator/tasks/1"}, {"GET", "/api/operator/tasks/1/report"}, {"GET", "/api/operator/tasks/1/coverage-key"}, {"POST", "/api/operator/tasks/1/coverage"}} {
+	for _, route := range []struct{ method, path string }{{"GET", "/api/managed-skills"}, {"GET", "/api/managed-skills/sample"}, {"POST", "/api/managed-skills/sample"}, {"PUT", "/api/managed-skills/sample/bindings/planner"}, {"POST", "/api/managed-skills/sample/versions/1/revoke"}, {"GET", "/api/operator/findings/1"}, {"POST", "/api/operator/findings/1"}, {"GET", "/api/operator/tasks/1"}, {"GET", "/api/operator/tasks/1/report"}, {"GET", "/api/operator/tasks/1/skill-runtime"}, {"GET", "/api/operator/tasks/1/coverage-key"}, {"POST", "/api/operator/tasks/1/coverage"}} {
 		for _, token := range []string{"", "invalid-synthetic-token"} {
 			r := httptest.NewRequest(route.method, route.path, nil)
 			if token != "" {
@@ -47,7 +47,7 @@ func TestPhase2AuthenticatedManagementAPI(t *testing.T) {
 		t.Fatal(err)
 	}
 	manifest := filepath.Join(dir, name, "SKILL.md")
-	if err = os.WriteFile(manifest, []byte("Synthetic non-executable fixture.\n"), 0600); err != nil {
+	if err = os.WriteFile(manifest, []byte("---\nname: "+name+"\ndescription: Synthetic fixture only.\nlicense: Synthetic fixture\n---\nNon-executable fixture.\n"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	s := &Server{m: m, skillDir: dir, jwtKey: bytes.Repeat([]byte{1}, 32)}
@@ -129,7 +129,7 @@ func TestPhase2AuthenticatedManagementAPI(t *testing.T) {
 	if err = json.Unmarshal(w.Body.Bytes(), &view); err != nil {
 		t.Fatal(err)
 	}
-	if view.RuntimeLocking || view.Checks[strconv.FormatInt(version.ID, 10)] != "matches" {
+	if !view.RuntimeLocking || view.Checks[strconv.FormatInt(version.ID, 10)] != "matches" {
 		t.Fatal("incorrect lock/digest claim")
 	}
 	if err = os.WriteFile(manifest, []byte("Changed harmless fixture."), 0600); err != nil {

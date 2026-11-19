@@ -17,6 +17,7 @@ import (
 // UnlockSkill unlocks a named skill's MCPs — hosts call it to rebuild the unlock set
 // from history on a resumed session (design doc C2).
 type DeferredInfo struct {
+	AssemblyError   error             // Mandatory integrity failure: callers must return before any model request.
 	FindingGuidance string            // derived from the final permitted tools, including DB overrides
 	Deferred        []string          // all MCP tool names (schema withheld)
 	GlobalNames     []string          // MCP names to list in the system-prompt block
@@ -75,6 +76,9 @@ func AugmentTools(ctx context.Context, agentKey string, base []actool.CoreTool) 
 		if len(extra) > 0 {
 			out = append(append([]actool.CoreTool{}, base...), extra...)
 		}
+	}
+	if def.AssemblyError != nil {
+		return nil, def, cleanup
 	}
 	// DB tools table has the final say on the built-in tools: drop the ones this
 	// agent isn't bound to (or that are disabled) and swap in overridden

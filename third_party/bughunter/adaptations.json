@@ -1,0 +1,32 @@
+[
+  {
+    "name": "quality-evidence-hygiene",
+    "source_repository": "https://github.com/elementalsouls/Claude-BugHunter",
+    "source_commit": "9bdb0a81658bc25f09c0b52d31fcde923d126e4f",
+    "source_path": "skills/evidence-hygiene/SKILL.md",
+    "source_sha256": "1200f715875c0d773e4d2e00691b92f06deb676e8ca7dafac0b8be19c168380c",
+    "adapted_path": "skills/quality-evidence-hygiene/SKILL.md",
+    "adapted_sha256": "cf2723e3622f49200bc06f8544dac5bd86a5f00124504d0d10412d6585ed51a9",
+    "author": "Sachin Sharma / Claude-BugHunter",
+    "content_license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "default_enabled": false,
+    "default_agent_bindings": [],
+    "changes": "Translated, abridged and redesigned for existing authorized-lab evidence only; operational examples, commands, external submission and unsafe privacy exceptions excluded."
+  },
+  {
+    "name": "quality-evidence-report",
+    "source_repository": "https://github.com/elementalsouls/Claude-BugHunter",
+    "source_commit": "9bdb0a81658bc25f09c0b52d31fcde923d126e4f",
+    "source_path": "skills/report-writing/SKILL.md",
+    "source_sha256": "c464af95a0eee58ac68d804b4a5db796f77af35bf7acdb031667824655ed3813",
+    "adapted_path": "skills/quality-evidence-report/SKILL.md",
+    "adapted_sha256": "65e647afd8d3ee017361be4ade4f0f759b3fa4b6f7da5d64734741510d0c26b4",
+    "author": "Sachin Sharma / Claude-BugHunter",
+    "content_license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "default_enabled": false,
+    "default_agent_bindings": [],
+    "changes": "Translated, abridged and redesigned for existing authorized-lab evidence only; operational examples, commands, external submission and unsafe privacy exceptions excluded."
+  }
+]
