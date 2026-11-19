@@ -123,7 +123,7 @@ func readApplied(t *testing.T, d *DB) []appliedMigration {
 // embedded migration is recorded with the SHA-256 of its file.
 func assertEmbeddedApplied(t *testing.T, d *DB) []appliedMigration {
 	t.Helper()
-	for _, table := range []string{"llm_records", "llm_usage", "knowledge_catalog", "knowledge_catalog_history"} {
+	for _, table := range []string{"llm_records", "llm_usage", "knowledge_catalog", "knowledge_catalog_history", "managed_skill_versions", "finding_operator_reviews", "coverage_operator_reviews"} {
 		var exists bool
 		if err := d.QueryRow(`SELECT to_regclass($1) IS NOT NULL`, table).Scan(&exists); err != nil {
 			t.Fatal(err)
@@ -137,7 +137,7 @@ func assertEmbeddedApplied(t *testing.T, d *DB) []appliedMigration {
 		version int
 		name    string
 	}{{1, llmRecordsMigration}, {2, llmUsageMigration}, {3, "0003_task_scope_icp_index.sql"}, {4, "0004_llm_usage_ts_index.sql"},
-		{5, "0005_traffic_rewrite_rules.sql"}, {6, "0006_activity_outbox.sql"}, {7, "0007_finding_report_state.sql"}, {8, "0008_knowledge_catalog.sql"}}
+		{5, "0005_traffic_rewrite_rules.sql"}, {6, "0006_activity_outbox.sql"}, {7, "0007_finding_report_state.sql"}, {8, "0008_knowledge_catalog.sql"}, {9, "0009_skill_review_management.sql"}}
 	if len(applied) != len(want) {
 		t.Fatalf("schema_migrations = %+v, want versions 1 to %d", applied, len(want))
 	}
